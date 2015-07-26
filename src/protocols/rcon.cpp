@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2014 Declan Ireland <http://github.com/torndeco/extDB>
+Copyright (C) 2014 Declan Ireland <http://github.com/torndeco/extDB2>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,13 +15,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/StringTokenizer.h>
-#include <boost/algorithm/string.hpp>
 
 #include "rcon.h"
 
+#include <boost/algorithm/string.hpp>
 
-bool RCON::init(AbstractExt *extension,  const std::string &database_id, const std::string init_str)
+#include <Poco/StringTokenizer.h>
+
+
+bool RCON::init(AbstractExt *extension,  const std::string &database_id, const std::string &init_str)
 {
 	extension_ptr = extension;
 
@@ -29,20 +31,48 @@ bool RCON::init(AbstractExt *extension,  const std::string &database_id, const s
 	{
 		Poco::StringTokenizer tokens(init_str, "-");
 		allowed_commands.insert(allowed_commands.begin(), tokens.begin(), tokens.end());
-		#ifdef TESTING
+		#ifdef DEBUG_TESTING
 			extension_ptr->console->warn("extDB2: RCON: Commands Allowed: {0}", init_str);
-			extension_ptr->console->warn("extDB2: RCON Status: {0}", extension_ptr->extDB_connectors_info.rcon);
+			extension_ptr->console->warn("extDB2: RCON Status: {0}", extension_ptr->ext_connectors_info.rcon);
 		#endif
 		extension_ptr->logger->warn("extDB2: RCON: Commands Allowed: {0}", init_str);
-		extension_ptr->logger->warn("extDB2: RCON Status: {0}", extension_ptr->extDB_connectors_info.rcon);
+		extension_ptr->logger->warn("extDB2: RCON Status: {0}", extension_ptr->ext_connectors_info.rcon);
 	}
-	return extension_ptr->extDB_connectors_info.rcon;
+	return extension_ptr->ext_connectors_info.rcon;
 }
 
 
-bool RCON::callProtocol(std::string input_str, std::string &result, const int unique_id)
+void RCON::processCommand(std::string &command, std::string &input_str, const unsigned int unique_id, std::string &result)
 {
-	#ifdef TESTING
+	if (boost::algorithm::iequals(command, std::string("players")) == 1)
+	{
+		extension_ptr->rconPlayers(unique_id);
+	}
+	else if (boost::algorithm::iequals(command, std::string("missions")) == 1)
+	{
+		extension_ptr->rconMissions(unique_id);
+	}
+	else if (boost::algorithm::iequals(command, std::string("addBan")) == 1)
+	{
+		extension_ptr->rconAddBan(input_str);
+		result = "[1]";
+	}
+	else if (boost::algorithm::iequals(command, std::string("ban")) == 1)
+	{
+		extension_ptr->rconAddBan(input_str);
+		result = "[1]";
+	}
+	else
+	{
+		extension_ptr->rconCommand(input_str);
+		result = "[1]";
+	}
+}
+
+
+bool RCON::callProtocol(std::string input_str, std::string &result, const bool async_method, const unsigned int unique_id)
+{
+	#ifdef DEBUG_TESTING
 		extension_ptr->console->info("extDB2: RCON: Trace: Input: {0}", input_str);
 	#endif
 	#ifdef DEBUG_LOGGING
@@ -53,9 +83,8 @@ bool RCON::callProtocol(std::string input_str, std::string &result, const int un
 
 	if (allowed_commands.size() > 0)
 	{
-		const std::string::size_type found = input_str.find(" ");
 		std::string command;
-
+		const std::string::size_type found = input_str.find(" ");
 		if (found==std::string::npos)
 		{
 			command = input_str;
@@ -64,25 +93,24 @@ bool RCON::callProtocol(std::string input_str, std::string &result, const int un
 		{
 			command = input_str.substr(0, found-1);
 		}
+
 		if (std::find(allowed_commands.begin(), allowed_commands.end(), command) == allowed_commands.end())
 		{
 			result ="[0,\"RCon Command Not Allowed\"]";
-			#ifdef TESTING
+			#ifdef DEBUG_TESTING
 				extension_ptr->console->warn("extDB2: RCON: Command Not Allowed: Input: {0}", input_str);
 			#endif
 			extension_ptr->logger->warn("extDB2: RCON: Command Not Allowed: Input: {0}", input_str);
 		}
 		else
 		{
-			result = "[1]"; 
-			extension_ptr->rconCommand(input_str);
+			processCommand(command, input_str, unique_id, result);
 		}
 	}
 	else
 	{
-		result = "[1]"; 
-		extension_ptr->rconCommand(input_str);
+		processCommand(input_str, input_str, unique_id, result);
 	}
 
-	return true;
+	return (!result.empty());  // If result is empty due to error, save error message
 }

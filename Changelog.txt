@@ -1,4 +1,169 @@
 -------------------------------------------------------------------------------
+64 :
+	REMOVED: HTTP_RAW, it was broken and no-one was using it.
+	REMOVED: SQL_RAW + SQL_CUSTOM + STEAM  (V1 Protocols)
+
+	Changed: TBBMalloc over to statically linked JEMalloc. No extra tbb/tbbmalloc dll's required anymore.
+
+-------------------------------------------------------------------------------
+63 :
+	Improved: Changed Poco Library to use mysql_stmt_store_result(), should improve handling of Database Connection Lose when fetching results
+
+-------------------------------------------------------------------------------
+62 :
+	FIXED: RCon crashes, might be all fixed now
+
+	IMPROVED: Advanced Option to define seperator character used by SQL_CUSTOM + SQL_CUSTOM_V2 now can be defined in calls
+
+-------------------------------------------------------------------------------
+61 :
+	FIXED: RCon crashes, should be fine now
+
+	ADDED: Advanced Option to define seperator character used by SQL_CUSTOM + SQL_CUSTOM_V2
+
+-------------------------------------------------------------------------------
+60 :
+	ADDED: Windows DLL Info. Stops arma complaining in RPT
+
+	CHANGED: RCon addban + ban will automatically cause writebans to be called
+
+-------------------------------------------------------------------------------
+59 :
+	FIXED: 9:ADD_DATABASE:<database>
+
+	CHANGED: 9:TIME will now work if extension is locked or not
+
+-------------------------------------------------------------------------------
+58 :
+
+	ADDED: 9:TIME or 9:TIME:<offset> will return time. Only works before you lock extension i.e 9:LOCK  if you need it afterwards use MISC Protocol
+	ADDED: 9:SHUTDOWN will cause armaserver to shutdown nicely. Only works before you lock extension i.e 9:LOCK
+
+	ADDED: START_RCON Option PLAYERKEY
+	ADDED: SQL_CUSTOM / SQL_CUSTOM_V2 Option PLAYERKEY  (read Changelog for SQL_CUSTOM)
+	FIXED: SQL_CUSTOM / SQL_CUSTOM_V2 Error Reporting when getting a result
+
+	FIXED: MISC RANDOM_UNIQUE_STRING, will always return correct number of strings. Length of string might be larger than requested.
+
+	FIXED: Rcon won't keep trying to reconnect if Battleye doesn't respond i.e is turned off.
+	FIXED: Rcon Kicking for Bad Playernames when player connects to server.
+	FIXED: Rcon Whitelisting wasn't removing players from count when they disconnected from server
+
+	CHANGED: START_RCON Option FULL -> FULL_PLAYER_INFO
+
+	IMPROVED: Rcon inital connection to server is faster now.
+
+	IMPORTANT: SQL_CUSTOM now marked as deprecated will be removed in a month time.
+					The only difference between SQL_CUSTOM_V2 + SQL_CUSTOM is
+						SQL_CUSTOM    returns [1,[[]]] for empty SQL result
+						SQL_CUSTOM_V2 returns [1,[]]   for empty SQL result
+
+					Normal SQL Results with actual results are the exact same
+
+
+-------------------------------------------------------------------------------
+57 :
+	IMPROVED: SQL_CUSTOM Return Last ID Option will no longer return -1 and should perf better
+
+	FIXED: Player Whitelisting was counting non-whitelisted players instead of total players
+
+	FIXED: SQL_CUSTOM / SQL_CUSTOM_V2 issue
+			Where non-cached prepared statements that constain multiple sql prepared statements.
+			It would continue to run next statement if it encountered an error,
+			instead of reporting error + stop running the next statements in the callname.
+
+
+-------------------------------------------------------------------------------
+56 :
+	ADDED: Rcon Whitelisting / Reserve Slots
+
+	FIXED: Multiple fixes for Rcon Player kicks
+
+	MINOR: Code Improvement to 2: + 1: Calls
+
+-------------------------------------------------------------------------------
+55 :
+	ADDED: Rcon Player kicks for bad characters/strings (regex rules)
+
+	ADDED: SQL_CUSTOM + SQL_CUSTOM_V2 New String + Sanitize Options
+	FIXED: Multiple Fixes for SQL_CUSTOM + SQL_CUSTOM_V2, including Steam Checks
+
+	REMOVED: SQL_CUSTOM Options Vac_BeGUID
+
+	CHANGED: 9:VAR Option now always returns value as a string
+
+	IMPORTANT: Removed Redis Support
+
+-------------------------------------------------------------------------------
+54 :
+	FIXED: SQL_CUSTOM + SQL_CUSTOM Required Version Checks
+	FIXED: SQL_CUSTOM + SQL_CUSTOM_V2 Handling of Null Values in Database
+
+-------------------------------------------------------------------------------
+53 :
+	ADDED: Support for retreiving RCon players + missions
+	ADDED: Ability for filtering player ip/port/ping from Rcon players
+
+	FIXED: Another small fix for loading extdb-conf.ini
+	FIXED: More Fixes for Steam Protocol
+
+	FIXED: Commandline arguments (removed " from arguments)
+	FIXED: -extDB_VAR fixed parsing for Windows
+
+	UPDATED: Rcon Code, commands will execute straight away now
+
+	MINOR: Some Code Improvements
+
+-------------------------------------------------------------------------------
+52 :
+	FIXED: Loading extdb-conf.ini
+
+-------------------------------------------------------------------------------
+51 :
+	ADDED: HTTP_RAW Protocol (Basic Auth, GET, POST support)
+	ADDED: STEAM_V2 (Removed case insensitive for performance reasons)
+
+	ADDED: -extDB2_VAR  -extDB2_WORK commandline arguments  (Linux + Windows)
+			_VAR is retreivable via "9:VAR", before extension lock
+			_WORK defines custom location for extdb-conf.ini / extDB directories
+
+	FIXED: Issue were STEAM / Redis Protocols wouldn't save result.
+
+	UPDATED: RemoteServer with basic blacklisting ips that failed to login over 3 times
+
+	MINOR: Fixed console output on debug extension builds
+	MINOR: Updated Poco / Boost / MySQL / SPDLog Libraries
+	MINOR: Tweaked Compiler Flags
+
+-------------------------------------------------------------------------------
+50 :
+	ADDED: V2 SQL Protocols, empty results return [] instead of [[]]
+
+	FIXED: Loading STEAM Protocol
+	FIXED: Removed debug output for timing mutex locks
+
+-------------------------------------------------------------------------------
+49:
+	FIXED: SQL_CUSTOM: Strip Custom Input Chars -> Strip Custom Chars
+	UPDATED: SQL_CUSTOM version = 9
+
+-------------------------------------------------------------------------------
+48:
+	ADDED: SQL_CUSTOM: Support for loading multiple sql_custom.ini files
+	ADDED: SQL_CUSTOM: Vac_SteamID + Vac_BeGUID Options
+
+	FIXED: Loading MISC + LOG Protocols
+
+-------------------------------------------------------------------------------
+47:
+	ADDED: REDIS_RAW Protocol  (Yes finally got around to Redis Support)
+	ADDED: SQL_CUSTOM: BOOL Option
+
+	UPDATED: Improved UniqueID Generator Code + more code changes thanks https://github.com/MaHuJa
+
+	KNOWN ISSUES: There is no exceptional handling for Redis atm, so if loses connection will crash extension.
+
+-------------------------------------------------------------------------------
 46:
 	FIXED: Windows Lockup
 
@@ -56,21 +221,21 @@
 	FIXED: More SQL_CUSTOM Fixes for Database Exception Handling
 
 -------------------------------------------------------------------------------
-38: 
+38:
 	UPDATED: No Longer Creating VAC Ban Logs when Auto Ban is disable
-	
+
 	FIXED: Bug in Results Fetching when SQL Command is INSERT etc...
 
 -------------------------------------------------------------------------------
-37: 
+37:
 	UPDATED: Linux Builds now use same version of MySQL as Windows Builds
-	
+
 	FIXED: MySQL Bug when Connection fails between prepare + fetch.
 	FIXED: Exception Handling for Database Connection Failed
 	FIXED: Prepared Statement Cache, now cleared when there is an error
 
 -------------------------------------------------------------------------------
-36: 
+36:
 	UPDATED: Overhaul of extDB2 Code, https://github.com/Torndeco/extDB2/wiki/Changes-from-extDB
-	
+
 	FIXED: Exceptions Handling for Database Connection Lost

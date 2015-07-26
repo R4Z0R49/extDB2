@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2014 Declan Ireland <http://github.com/torndeco/extDB>
+Copyright (C) 2014 Declan Ireland <http://github.com/torndeco/extDB2>
 Copyright (C) 2009-2012 Rajko Stojadinovic <http://github.com/rajkosto/hive>
 
 
@@ -21,8 +21,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <Poco/Types.h>
+#include <vector>
+
 #include <boost/variant.hpp>
+#include <Poco/Types.h>
 
 
 namespace Sqf

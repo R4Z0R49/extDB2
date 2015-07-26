@@ -1,0 +1,76 @@
+SQL_CUSTOM Major Changes
+This just lists info on changes when SQL_CUSTOM version is bumped.
+Looking for more info on SQL_CUSTOM check out https://github.com/Torndeco/extDB2/wiki/Calls:-Protocol--SQL_CUSTOM
+
+Versions
+---------------------------------------------------------------------------------------------------
+11->12
+	Added: SQL_CUSTOM + SQL_CUSTOM_V2   Seperator Character (Base10)   Option
+		Allows you define the seperator character for entire SQL_CUSTOM Protocol or callnames
+			Value for Option is in Base10  i.e  58 = :
+
+---------------------------------------------------------------------------------------------------
+10->11
+	Added: Player_Key
+		Example of use
+		9:START_RCON:PLAYERKEY
+
+			[getPlayerBankMoney]
+			SQL1_1 = SELECT BankMoney FROM PlayerInfo WHERE UID = ?;
+
+			Number of Inputs = 1
+			SQL1_INPUTS = 1-PlayerKey
+			Return Player Key = true
+
+		Example of returned result = [1,["QWIOEJQWSAD",[2000]]]
+
+		Ok time to explain what PlayerKey is....
+
+		To start with it requires extDB2 to be connected to server via Rcon and using the option PLAYERKEY.
+		When a player connects to Rcon they are automatically given a unique randomized PlayerKey.
+		When the player disconnects the PlayerKey is removed (read note below)
+
+		By saying 1-PlayerKey we are telling SQL_CUSTOM to use Input Value 1 + return the unique player key for that player.
+		The input value can either be PlayerUID or BEGuid, makes no difference.
+		You can also use InsertID at the same time, the format for that is [1,[<InsertID>,[<PlayerKey>,<Result>]]]
+
+		If there is an error, for example extDB2 isn't connected to the server via Rcon.
+		The returned PlayerKey is an empty string.
+
+
+		Why ?
+		This will allow you to offload randomized player value to the extension.
+		But the main reason it will be integerated feature to extDB2 upcoming BELogscanner.
+		You will be able to make regex rules to ban/kick players for entries in BattlEye that don't have the correct playerkey.
+		It will be possible to enable adding/removing playerkeys manually, but it will require extra callExtensions + will be less secure.
+
+		The BELogscanner feature is heavily based of my old pyBEscanner, if anyone remembers it.
+
+
+---------------------------------------------------------------------------------------------------
+9->10
+	Added: String_Escape_Quotes
+		Escapes " -> ""  ,   ' -> ''
+		Added " to either end of string
+		Example  aaa'bbb"dsadsd"  -> "aaa''bbb""dsadsd"""   so it will call compile correctly
+		Useful for when storing + retreiving playernames from Database
+
+	Added: Check_Add_Quotes (Input Only Option)
+		This just adds "<value>" before running a sanitize check.
+		Useful for when storing a string in database + you like to a check it, but you don't wont to store quotes wrapping the string.
+
+	Added: Check_Add_Escape_Quotes (Input Only Option)
+		This will escape the quotations (just like String_Escape_Quotes) before running a sanitize check.
+		Useful for when storing strings in raw form and are retrieving via String_Escape_Quotes later on. e.g playernames
+
+	Added: DateTime_ISO8601 (Output Only Option)
+		Used to convert ISO8601 Format i.e "2015-05-13T20:16:24Z" to arma array [Year,Month,Day,Hour,Minute,Second] or [] for Null Entry
+
+
+	Removed Vac_BeGUID  Why the hell did i think you could query Steam Servers with BEGuid
+
+
+---------------------------------------------------------------------------------------------------
+8->9
+	Change "Strip Custom Input Chars" -> "Strip Custom Chars"
+		Not a Typo, only afew people will have "Strip Custom Input Chars", most should already be using "Strip Custom Chars".
